@@ -1,37 +1,47 @@
 ---
 title: "p8105_hw1_rk3445"
 author: "Rosie Kwon"
-date: "2025-09-16"
 output: github_document
 ---
 
-## Problem 1
+# Problem 1
 
 ```{r echo = TRUE, message = FALSE}
 library(tidyverse)
 ```
+
+## load the `moderndive` library the dataset
 
 ```{r}
 library(moderndive)
 data("early_january_weather")
 ```
 
+## description of dataset
+
 The `early_january_weather` dataset has `r nrow(early_january_weather)` observations and `r ncol(early_january_weather)` variables. 
 
 The variables include:
 
-- `origin`: the origin of the observation
-- `year`,`month`,`day`,`hour` : Time of recording.
-- `temp`: temperature in Fahrenheit
+- `origin`: the source of observation data. Data are from `r paste(unique(early_january_weather[["origin"]]), collapse = ", ")`.
+
+- `year`,`month`,`day`,`hour`,`time_hour` : Time of recording.
+The data cover the period from `r format(min(early_january_weather$time_hour), "%Y-%m-%d %H:%M")` to `r format(max(early_january_weather$time_hour), "%Y-%m-%d %H:%M")`.
+
+- `temp`: temperature in Fahrenheit, ranging from `r min(early_january_weather$temp)`°F to `r max(early_january_weather$temp)`°F, with a mean of `r round(mean(early_january_weather$temp), 1)`°F.  
+
 - `dewp` : dewpoint in Fahrenheit
-- `humidity`: humidity 
+
+- `humid`: humidity, ranging from `r min(early_january_weather$humid)` to `r max(early_january_weather$humid)`
+
 - `wind_dir`,`wind_speed`,`wind_gust`: wind direction/speed/gust speed
 - `precip`: precipitation
 - `pressure`: pressure
 - `visib`: visibility
 
-The temperature (`temp`) ranges from `r min(early_january_weather$temp)` to `r max(early_january_weather$temp)` degrees Fahrenheit, with a mean of `r round(mean(early_january_weather$temp),1)`. 
+These variables provide detailed information on weather conditions during early January, allowing for the study of temperature variation, humidity trends, and wind or precipitation patterns over time.
 
+## scatter plot 
 
 ```{r}
 ggplot(early_january_weather, aes(x = time_hour, y = temp)) + geom_point(aes(color = humid)) +labs(
@@ -41,18 +51,20 @@ ggplot(early_january_weather, aes(x = time_hour, y = temp)) + geom_point(aes(col
   )
 ```
 
-The scatter plot shows the temperature trends in January. The temperature increased steadily over two weeks, peaking around mid-January above 55°F. As temperature increased, humidity also varied, with spikes of high humidity during the warmest days. Early January started cooler and drier, but by mid-January it became warmer and more humid.
+The scatter plot shows the temperature trends from January 1st to January 15th. From early to mid-January, temperatures show a general upward trend. Daily cycles can be seen with lower temperature at night and higher temperature during the daytime, typically peaking around noon. Brighter-colored points (indicating higher humidity) are more frequently observed at lower temperatures. However, around mid-January, there is a sudden spike in temperature, and some points at lower temperatures show humidity close to 90–100%. In summary, early January started cooler and drier, but by mid-January it became warmer and more humid.
+
+
+## save the plot as a pdf
 
 ```{r}
 ggsave("temperature.pdf")
 ```
 
 
-## Problem 2
+# Problem 2
 
 
-Create a data frame comprised of:
-
+## create a data frame comprised of:
 - a random sample of size 10 from a standard Normal distribution
 - a logical vector indicating whether elements of the sample are greater than 0
 - a character vector of length 10
@@ -64,12 +76,13 @@ df =
     numeric_var = rnorm(10),
     logical_var = numeric_var > 0,
     char_var = letters[1:10],
-    factor_var = factor(sample(c("Level1", "Level2", "Level3"), 10, replace = TRUE))
+    factor_var = factor(sample(c("step1", "step2", "step3"), 10, replace = TRUE))
   )
 ```
 
 
-**Try to take the mean of each variable in your dataframe. What works and what doesn’t?**
+## take the mean of each variable 
+
 
 * Method 1) 
 ```{r}
@@ -79,28 +92,37 @@ sapply(df, mean)
 
 
 * Method 2)
+
+
 Hint: for now, to take the mean of a variable in a dataframe, you need to pull the variable out of the dataframe. Try loading the tidyverse and using the pull function.
 
 ```{r}
+# Numeric variable
 num <- df %>% pull(numeric_var)
 mean(num)
 
+# Logical variable
 logi <- df %>% pull(logical_var)
 mean(logi)
 
+# Character variable
 char <- df %>% pull(char_var)
 mean(char)
 
+# Factor variable
 fac <- df %>% pull(factor_var)
 mean(fac)
      
 ```
 
-Numeric vector can calculated mean. R treats TRUE as 1 and FALSE as 0 for logical vector, so mean gives the proportion of TRUEs. However, character vector is text so mean cannot be calculated. Factor vector is categorical value so mean cannot be calculated as well.
+## What works and what doesn’t?
+
+A numeric vector can have its mean calculated. For a logical vector, TRUE is treated as 1 and FALSE is treated as 0 , so `mean()` gives the proportion of TRUE values. However, a character vector contains text, so the mean cannot be calculated. Similarly, a factor vector is categorical, so its mean cannot be calculated either.
 
 
+## explicitly convert variables from one type to another
 
-**In some cases, you can explicitly convert variables from one type to another. Write a code chunk that applies the as.numeric function to the logical, character, and factor variables (please show this chunk but not the output). What happens, and why? Does this help explain what happens when you try to take the mean?**
+Write a code chunk that applies the as.numeric function to the logical, character, and factor variables (please show this chunk but not the output). What happens, and why? Does this help explain what happens when you try to take the mean?
 
 ```{r echo = TRUE, message=FALSE}
 num_char <- mean(as.numeric(char))
@@ -108,7 +130,6 @@ num_log <- mean(as.numeric(logi))
 num_fac <- mean(as.numeric(fac))
 ```
 
-For character variables, coercing them to numeric produces a warning because non-numeric strings cannot be converted, resulting in NA values and an invalid mean. Converting logical values into numeric values gives the proportion of TRUE values. For factor variables, numeric conversion returns the internal integer codes assigned to each level. However, taking the mean of these integer codes is not related to actual mean of the values.
-This helps me to explain why mean() function behaves differently depending on the variable type and it only works directly on numeric and logical vectors.
+For character variables, coercing them to numeric produces a warning message because non-numeric strings cannot be converted, resulting in NA values and an invalid mean. Converting logical values into numeric values gives the proportion of TRUE values. For factor variables, numeric conversion returns the integer assigned to each level. However, taking the mean of these integer codes is not related to actual mean of the values. This helps me to explain why mean() function behaves differently depending on the variable type and it only works directly on numeric and logical vectors.
 
 

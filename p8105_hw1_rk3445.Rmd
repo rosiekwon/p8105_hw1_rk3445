@@ -1,6 +1,6 @@
 ---
 title: "p8105_hw1_rk3445"
-author: "Rosie K"
+author: "Rosie Kwon"
 date: "2025-09-16"
 output: github_document
 ---
@@ -43,7 +43,7 @@ ggplot(early_january_weather, aes(x = time_hour, y = temp)) + geom_point(aes(col
 
 The scatter plot shows the temperature trends in January. The temperature increased steadily over two weeks, peaking around mid-January above 55°F. As temperature increased, humidity also varied, with spikes of high humidity during the warmest days. Early January started cooler and drier, but by mid-January it became warmer and more humid.
 
-```{r echo=FALSE,message = FALSE}
+```{r}
 ggsave("temperature.pdf")
 ```
 
